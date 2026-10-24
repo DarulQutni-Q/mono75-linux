@@ -96,143 +96,23 @@ mkdir -p "$WINE_DIR/drive_c"
 ln -sfn "$DATA_DIR/app" "$WINE_DIR/drive_c/mono75app"
 echo "1.0.0" > "$DATA_DIR/version"
 
-# --- 5. Install Python CLI Tool ---
-echo "==> Installing native Python CLI tool..."
-if [ -f "./mono75_linux.py" ]; then
-    cp "./mono75_linux.py" "$DATA_DIR/mono75_linux.py"
+# Launcher. Satu sumber: bin/mono75 di repo. Kalau installer dijalankan
+# lewat curl, file lokal tidak ada, jadi unduh file yang sama dari repo.
+echo "Memasang launcher ke $INSTALL_DIR/mono75"
+if [ -f "./bin/mono75" ]; then
+    cp "./bin/mono75" "$INSTALL_DIR/mono75"
 else
-    $DL "https://raw.githubusercontent.com/$REPO/main/mono75_linux.py" -o "$DATA_DIR/mono75_linux.py"
+    $DL "https://raw.githubusercontent.com/$REPO/main/bin/mono75" -o "$INSTALL_DIR/mono75"
 fi
-chmod +x "$DATA_DIR/mono75_linux.py"
-
-# Create symlink for mono75-cli
-ln -sfn "$DATA_DIR/mono75_linux.py" "$INSTALL_DIR/mono75-cli"
-
-# --- 6. Install Runner Script ---
-echo "==> Installing runner binary to $INSTALL_DIR/mono75..."
-cat > "$INSTALL_DIR/mono75" << 'EOF'
-#!/usr/bin/env bash
-# ==============================================================================
-# VortexSeries MONO 75 Keyboard Manager & Driver Runner
-# Reverse-Engineered from Official OEM Windows Application (DeviceDriver.exe v1.0.3.5)
-# ==============================================================================
-set -e
-
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-CLI_CANDIDATES=(
-    "$SCRIPT_DIR/mono75_linux.py"
-    "$SCRIPT_DIR/../mono75_linux.py"
-    "${XDG_DATA_HOME:-$HOME/.local/share}/mono75/mono75_linux.py"
-)
-
-CLI_PATH=""
-for cand in "${CLI_CANDIDATES[@]}"; do
-    if [ -f "$cand" ]; then
-        CLI_PATH="$cand"
-        break
-    fi
-done
-
-is_cli=0
-if [ $# -gt 0 ]; then
-    case "$1" in
-        info|light|list-modes|per-key|keymap|raw|--device)
-            is_cli=1
-            ;;
-        --cli|-c)
-            is_cli=1
-            shift
-            ;;
-        --gui|-g)
-            is_cli=0
-            shift
-            ;;
-        -h|--help)
-            echo "======================================================================"
-            echo "  VortexSeries MONO 75 Keyboard Configuration Manager"
-            echo "  Reverse-Engineered for Linux (VID 0x1A2C / PID 0x6380)"
-            echo "======================================================================"
-            echo "Usage:"
-            echo "  mono75                 Launch the official vendor GUI application (via Wine)"
-            echo "  mono75 --gui           Explicitly launch the official GUI"
-            echo "  mono75 <cmd> [args]    Run native Python CLI directly (zero Wine needed)"
-            echo ""
-            echo "Available CLI Commands:"
-            echo "  info                   Query firmware version and device status"
-            echo "  list-modes             List all 21 lighting preset numbers and names"
-            echo "  light [options]        Set global lighting mode, brightness, speed, color"
-            echo "  per-key [options]      Set per-key RGB colors (color hex or CSV map)"
-            echo "  keymap [options]       List or remap keys across base (0) and Fn (1) layers"
-            echo "  raw <hex> [--recv]     Send raw 64-byte HID packet for debugging"
-            echo ""
-            echo "CLI Examples:"
-            echo "  mono75 info"
-            echo "  mono75 list-modes"
-            echo "  mono75 light --mode 4 --speed 3 --brightness 4"
-            echo "  mono75 light --mode 1 --brightness 4 --color 00ffd5"
-            echo "  mono75 per-key --color ff007f"
-            echo "  mono75 keymap --layer 0 --remap Caps 0xE0"
-            echo "======================================================================"
-            exit 0
-            ;;
-        *)
-            is_cli=1
-            ;;
-    esac
-fi
-
-if [ "$is_cli" -eq 1 ]; then
-    if [ -z "$CLI_PATH" ]; then
-        echo "Error: mono75_linux.py CLI utility not found." >&2
-        exit 1
-    fi
-    exec python3 "$CLI_PATH" "$@"
-fi
-
-export WINEPREFIX="${WINEPREFIX:-${XDG_DATA_HOME:-$HOME/.local/share}/mono75/wineprefix}"
-export WINEDEBUG="-all"
-export WINEDLLOVERRIDES="mscoree,mshtml="
-
-APP_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/mono75/app"
-WINE_APP="${WINEPREFIX}/drive_c/mono75app"
-
-if ! command -v wine >/dev/null 2>&1; then
-    echo "======================================================================"
-    echo "  VortexSeries MONO 75 Keyboard Manager"
-    echo "======================================================================"
-    echo "Notice: 'wine' was not found in your PATH."
-    echo "The official vendor GUI requires Wine to run on Linux."
-    echo ""
-    echo "To install Wine on your distribution:"
-    echo "  Arch / CachyOS : sudo pacman -S wine"
-    echo "  Ubuntu / Debian: sudo apt install wine"
-    echo "  Fedora         : sudo dnf install wine"
-    echo ""
-    echo "Alternatively, use the native 100% Linux CLI utility (zero Wine needed):"
-    echo "  mono75 info"
-    echo "  mono75 list-modes"
-    echo "  mono75 light --mode 4 --speed 3 --brightness 4"
-    echo "  mono75 per-key --color ff007f"
-    echo "  mono75 keymap --layer 0 --remap Caps 0xE0"
-    echo "======================================================================"
-    exit 1
-fi
-
-if [ ! -d "$WINE_APP" ]; then
-    if [ -d "$APP_DIR" ]; then
-        mkdir -p "${WINEPREFIX}/drive_c"
-        ln -sfn "$APP_DIR" "$WINE_APP"
-    else
-        echo "Error: MONO 75 application directory not found at $APP_DIR" >&2
-        echo "Please run install.sh or reinstall the package." >&2
-        exit 1
-    fi
-fi
-
-cd "$WINE_APP"
-exec wine "C:\\mono75app\\DeviceDriver.exe" "$@"
-EOF
 chmod +x "$INSTALL_DIR/mono75"
+
+# Hapus sisa CLI lama, supaya tidak ada perintah setengah yang menyesatkan.
+rm -f "$INSTALL_DIR/mono75-cli" "$DATA_DIR/mono75_linux.py"
+
+
+# Hapus sisa CLI lama, supaya tidak ada perintah setengah yang menyesatkan.
+rm -f "$INSTALL_DIR/mono75-cli" "$DATA_DIR/mono75_linux.py"
+
 
 # --- 7. Install Icons ---
 echo "==> Installing icons..."
