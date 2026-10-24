@@ -226,7 +226,7 @@ Byte 0      Byte 1      Byte 2        Byte 3        Byte 4 .. 63
 
 Extracted from `KB-K102.xml` and English localization resource `1033.lan`:
 
-| Mode | Official English Name (`1033.lan`) | CLI Alias (`mono75_linux.py`) | XML Mode ID | XML Attribute | Animation Description | Supported Params |
+| Mode | Official English Name (`1033.lan`) | Nama singkat | XML Mode ID | XML Attribute | Animation Description | Supported Params |
 |:---:|:---|:---|:---:|:---:|:---|:---|
 | **1** | **Steady** | Static | 1 | 1 | Solid color across all keys | Brightness, RGB |
 | **2** | **Light Off** | Off | 2 | 257 | Turns all key LEDs completely off | None |
