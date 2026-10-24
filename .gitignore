@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+
+# Archives and package artifacts
+*.tar.gz
+*.tar.zst
+*.zip
+*.7z
+
+# Temporary files & Wine prefixes
+*.tmp
+*.bak
+*~
+.DS_Store
+wineprefix/
+app/

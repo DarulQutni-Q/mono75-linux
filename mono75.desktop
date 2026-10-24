@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=MONO 75
+GenericName=Keyboard Configurator
+Comment=Official configuration software for VortexSeries MONO 75 mechanical keyboard (Reverse-Engineered for Linux)
+Exec=mono75
+Icon=mono75
+Terminal=false
+Type=Application
+Categories=Settings;HardwareSettings;Utility;
+StartupWMClass=devicedriver.exe
+Keywords=vortex;vortexseries;mono75;keyboard;rgb;macro;hid;semico;
