@@ -129,7 +129,7 @@ Byte 0      Byte 1      Byte 2        Byte 3        Byte 4 .. 63
 
 ### 3.2 Command Packet Deep Dives
 
-#### 3.2.1 `CMD_INFO` (0x01) — Device & Firmware Query
+#### 3.2.1 `CMD_INFO` (0x01) - Device & Firmware Query
 - **Purpose**: Retrieves the active firmware version and MCU configuration status.
 - **Request Packet (Host -> Device)**:
   ```
@@ -146,7 +146,7 @@ Byte 0      Byte 1      Byte 2        Byte 3        Byte 4 .. 63
   Byte 8 .. 63 : Extended vendor status data
   ```
 
-#### 3.2.2 `CMD_LIGHT_MODE` (0xFE) — Preset Lighting Animation
+#### 3.2.2 `CMD_LIGHT_MODE` (0xFE) - Preset Lighting Animation
 - **Purpose**: Activates one of the 21 built-in lighting animations and sets animation attributes.
 - **Packet Structure**:
   ```
@@ -162,7 +162,7 @@ Byte 0      Byte 1      Byte 2        Byte 3        Byte 4 .. 63
   ```
 - **Commit**: Must be followed by `CMD_COMMIT` (0xAB) after a ~50ms delay.
 
-#### 3.2.3 `CMD_KEYMAP` (0x12) — Key Remapping
+#### 3.2.3 `CMD_KEYMAP` (0x12) - Key Remapping
 - **Purpose**: Remaps a physical key switch on a specific layer to an arbitrary HID Usage code.
 - **Packet Structure**:
   ```
@@ -179,7 +179,7 @@ Byte 0      Byte 1      Byte 2        Byte 3        Byte 4 .. 63
   ```
 - **Commit**: Persist to flash with `CMD_COMMIT` (0xAB).
 
-#### 3.2.4 `CMD_LIGHT_FRAME` (0x76) — Backlight Frame Parameters
+#### 3.2.4 `CMD_LIGHT_FRAME` (0x76) - Backlight Frame Parameters
 - **Purpose**: Controls global lighting layer state and master brightness level.
 - **Packet Structure**:
   ```
@@ -191,7 +191,7 @@ Byte 0      Byte 1      Byte 2        Byte 3        Byte 4 .. 63
   Byte 5 .. 63 : 0x00 (Padding)
   ```
 
-#### 3.2.5 `CMD_RGB_DATA` (0x99) & `CMD_PER_KEY_RGB` (0xFF) — Per-Key Custom RGB Streaming
+#### 3.2.5 `CMD_RGB_DATA` (0x99) & `CMD_PER_KEY_RGB` (0xFF) - Per-Key Custom RGB Streaming
 - **Purpose**: Transmits per-key 24-bit RGB values to the keyboard LED matrix.
 - **Protocol Flow**:
   1. The keyboard matrix contains up to 84 indexed LED positions (maximum `light_index` = 101 due to sparse matrix addressing).
@@ -211,7 +211,7 @@ Byte 0      Byte 1      Byte 2        Byte 3        Byte 4 .. 63
   2. Send `CMD_LIGHT_FRAME` (`0x76`) with brightness level.
   3. Send `CMD_COMMIT` (`0xAB`) to latch and display colors.
 
-#### 3.2.6 `CMD_COMMIT` (0xAB) — Flash Persistence
+#### 3.2.6 `CMD_COMMIT` (0xAB) - Flash Persistence
 - **Purpose**: Flushes configuration buffers from volatile MCU RAM into onboard Flash memory.
 - **Packet Structure**:
   ```
