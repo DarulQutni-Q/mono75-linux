@@ -151,3 +151,22 @@ dan di-reload, lalu cabut dan colok lagi keyboardnya.
 Perintah CLI lama tidak jalan
 : Itu memang sudah dihapus. Tidak ada pengganti CLI di repo ini.
 Gunakan GUI vendor.
+
+## Uninstall
+
+Hapus path yang dipasang installer:
+
+```bash
+rm -f ~/.local/bin/mono75
+rm -rf ~/.local/share/mono75
+rm -f ~/.local/share/applications/mono75.desktop
+rm -f ~/.local/share/icons/hicolor/512x512/apps/mono75.png
+sudo rm -f /etc/udev/rules.d/99-mono75.rules
+```
+
+## Penafian
+
+Proyek ini adalah hasil reverse engineering independen untuk mendukung
+Linux, dan tidak berafiliasi dengan Vortex Gaming, VortexSeries, atau
+China Resource Semico. Merek dan nama produk adalah milik pemiliknya
+masing-masing.
