@@ -114,38 +114,24 @@ rm -f "$INSTALL_DIR/mono75-cli" "$DATA_DIR/mono75_linux.py"
 rm -f "$INSTALL_DIR/mono75-cli" "$DATA_DIR/mono75_linux.py"
 
 
-# --- 7. Install Icons ---
-echo "==> Installing icons..."
-if [ -f "./assets/vortex-mono75.png" ]; then
-    cp "./assets/vortex-mono75.png" "$DATA_DIR/icon.png"
-    cp "./assets/vortex-mono75.png" "$ICON_DIR/mono75.png"
-elif [ -f "$ICON_DIR/mono75.png" ]; then
-    cp "$ICON_DIR/mono75.png" "$DATA_DIR/icon.png"
+# Ikon. Satu file 512x512 saja, bukan satu gambar yang disalin ke banyak ukuran.
+echo "Memasang ikon ke $ICON_DIR/hicolor/512x512/apps/mono75.png"
+mkdir -p "$ICON_DIR/hicolor/512x512/apps"
+if [ -f "./assets/icon.png" ]; then
+    cp "./assets/icon.png" "$ICON_DIR/hicolor/512x512/apps/mono75.png"
 else
-    $DL "https://raw.githubusercontent.com/$REPO/main/assets/vortex-mono75.png" -o "$DATA_DIR/icon.png" 2>/dev/null || true
-    [ -f "$DATA_DIR/icon.png" ] && cp "$DATA_DIR/icon.png" "$ICON_DIR/mono75.png"
+    $DL "https://raw.githubusercontent.com/$REPO/main/assets/icon.png" -o "$ICON_DIR/hicolor/512x512/apps/mono75.png"
 fi
+rm -f "$ICON_DIR/mono75.png"
 
-# Populate standard hicolor sizes
-if [ -d "./assets/icons" ]; then
-    cp -r ./assets/icons/* "$ICON_DIR/hicolor/" 2>/dev/null || true
-fi
 
-for s in 16 24 32 48 64 96 128 256 512; do
-    HICOLOR_TARGET="$ICON_DIR/hicolor/${s}x${s}/apps"
-    mkdir -p "$HICOLOR_TARGET"
-    if [ ! -f "$HICOLOR_TARGET/mono75.png" ] && [ -f "$DATA_DIR/icon.png" ]; then
-        cp "$DATA_DIR/icon.png" "$HICOLOR_TARGET/mono75.png"
-    fi
-done
-
-# --- 8. Install Desktop Entry ---
-echo "==> Installing desktop entry to $DESKTOP_DIR/mono75.desktop..."
-cat > "$DESKTOP_DIR/mono75.desktop" << EOF
+# Desktop entry, dibuat installer supaya Exec selalu menunjuk launcher yang baru dipasang.
+echo "Memasang desktop entry ke $DESKTOP_DIR/mono75.desktop"
+cat > "$DESKTOP_DIR/mono75.desktop" <<EOF
 [Desktop Entry]
 Name=MONO 75
 GenericName=Keyboard Configurator
-Comment=Official configuration software for VortexSeries MONO 75 mechanical keyboard (Reverse-Engineered for Linux)
+Comment=Vendor configuration software for VortexSeries MONO 75 mechanical keyboard, run through Wine
 Exec=$INSTALL_DIR/mono75
 Icon=mono75
 Terminal=false
@@ -155,6 +141,7 @@ StartupWMClass=devicedriver.exe
 Keywords=vortex;vortexseries;mono75;keyboard;rgb;macro;hid;semico;
 EOF
 chmod 644 "$DESKTOP_DIR/mono75.desktop"
+
 
 # --- 9. Install Udev Rules ---
 echo "==> Configuring udev permissions (non-root access)..."
