@@ -1,7 +1,5 @@
-# VortexSeries Mono 75 Mechanical Keyboard (China Resource Semico Co., Ltd)
-# USB VID: 0x1A2C, PID: 0x6380
-# Allow non-root users access to the keyboard's hidraw and USB nodes without sudo
+# VortexSeries Mono 75, VID 1a2c, PID 6380.
+# Dua aturan ini cukup: satu untuk hidraw, satu untuk usb.
+# Baris duplikat yang dulu ada di file ini sudah dihapus.
 SUBSYSTEM=="hidraw", ATTRS{idVendor}=="1a2c", ATTRS{idProduct}=="6380", MODE="0666", GROUP="users", TAG+="uaccess"
 SUBSYSTEM=="usb", ATTRS{idVendor}=="1a2c", ATTRS{idProduct}=="6380", MODE="0666", GROUP="users", TAG+="uaccess"
-ATTRS{idVendor}=="1a2c", ATTRS{idProduct}=="6380", MODE="0666", GROUP="users", TAG+="uaccess"
-KERNEL=="hidraw*", ATTRS{idVendor}=="1a2c", ATTRS{idProduct}=="6380", MODE="0666", GROUP="users", TAG+="uaccess"
