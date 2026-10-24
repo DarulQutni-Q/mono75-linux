@@ -126,3 +126,28 @@ dari aplikasi vendor, bukan janji bahwa setiap opcode sudah diuji
 langsung dengan hardware di semua kondisi. Bagian yang dulu berisi
 panduan CLI sudah dihapus bersama CLI-nya. Yang tersisa di dokumen itu
 adalah spesifikasi protokol dan penjelasan akses perangkat lewat udev.
+
+## Masalah yang sering muncul
+
+Wine tidak ditemukan
+: Pasang Wine sesuai distro, lalu jalankan `mono75` lagi. Launcher
+tidak akan mencoba membuka GUI tanpa Wine.
+
+Direktori aplikasi tidak ditemukan
+: Jalankan `install.sh` lagi. Kalau installer berhenti karena paket
+rilis gagal diunduh, periksa koneksi dan ketersediaan aset rilis
+v1.0.0, lalu ulangi. Jangan menganggap instalasi berhasil kalau
+`~/.local/share/mono75/app/DeviceDriver.exe` tidak ada.
+
+Perintah mono75 tidak ditemukan
+: Periksa PATH. Jalankan `~/.local/bin/mono75` untuk memastikan
+launchernya ada, lalu tambahkan `~/.local/bin` ke PATH shell yang
+kamu pakai.
+
+Perangkat tidak terdeteksi
+: Periksa `lsusb` untuk 1A2C:6380, periksa aturan udev sudah dipasang
+dan di-reload, lalu cabut dan colok lagi keyboardnya.
+
+Perintah CLI lama tidak jalan
+: Itu memang sudah dihapus. Tidak ada pengganti CLI di repo ini.
+Gunakan GUI vendor.
