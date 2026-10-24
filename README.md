@@ -1,23 +1,15 @@
 # VortexSeries MONO 75 Linux Driver & Configurator
 
-<div align="center">
 
-![MONO 75 Banner](assets/vortex-mono75.png)
 
 ### Driver & Tool Konfigurasi Keyboard VortexSeries MONO 75 untuk Linux
 **Hasil Reverse Engineering dari Aplikasi Resmi Vendor (`MONO 75 setup.exe` / `DeviceDriver.exe` v1.0.3.5)**
 
-[![Platform: Linux](https://img.shields.io/badge/platform-Linux%20(Wayland%20%2F%20X11)-blue.svg)](#)
-[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](#)
-[![Reverse Engineered](https://img.shields.io/badge/reverse--engineered-Official%20OEM%20App-orange.svg)](#)
-[![Hardware: 1A2C:6380](https://img.shields.io/badge/hardware-1a2c%3A6380-purple.svg)](#)
-[![Dual Mode: Official GUI + Native CLI](https://img.shields.io/badge/interface-Official%20GUI%20%2B%20Native%20CLI-teal.svg)](#)
 
-</div>
 
 ---
 
-## 📢 Tentang Proyek Ini
+##  Tentang Proyek Ini
 
 Repository ini menyediakan dukungan driver dan utilitas konfigurasi lengkap untuk keyboard mekanikal **VortexSeries MONO 75** di Linux. Seluruh protokol USB HID dan struktur data firmware diekstrak secara mandiri melalui proses **Reverse Engineering langsung dari installer resmi Windows (`MONO 75 setup.exe` / `DeviceDriver.exe` v1.0.3.5 by China Resource Semico Co., Ltd. / KB-K102)**.
 
@@ -32,7 +24,7 @@ Proyek ini menghadirkan **arsitektur Dual-Mode**:
 
 ---
 
-## 🚀 Quick Install (One-Line Installer)
+##  Quick Install (One-Line Installer)
 
 Cukup jalankan satu baris perintah berikut di terminal:
 
@@ -62,7 +54,7 @@ mono75 list-modes
 
 ---
 
-## 📊 Perbandingan Fitur
+##  Perbandingan Fitur
 
 | Fitur | Aplikasi Resmi Windows | Native Python CLI (`mono75 <cmd>`) | Runner Terintegrasi (`mono75`) |
 |---|---|---|---|
@@ -79,13 +71,11 @@ mono75 list-modes
 
 ---
 
-## 🎮 Kompatibilitas Hardware
+##  Kompatibilitas Hardware
 
-<div align="center">
 
 ![Keyboard Layout](assets/keyboard_layout.png)
 
-</div>
 
 | Parameter | Spesifikasi | Keterangan |
 |---|---|---|
@@ -99,7 +89,7 @@ mono75 list-modes
 
 ---
 
-## 💻 Panduan CLI Native Linux (`mono75`)
+##  Panduan CLI Native Linux (`mono75`)
 
 Utilitas CLI native memungkinkan Anda mengontrol keyboard secara instan dari terminal atau mengintegrasikannya ke skrip shell, polybar, waybar, atau shortcut compositor (Niri, Hyprland, Sway).
 
@@ -182,7 +172,7 @@ mono75 raw 070100000000000000000000000000000000000000000000000000000000000000000
 
 ---
 
-## 🛠️ Instalasi Manual dari Sumber (Git Clone)
+##  Instalasi Manual dari Sumber (Git Clone)
 
 Jika Anda ingin menginstall secara manual dari repository:
 
@@ -201,21 +191,18 @@ sudo udevadm control --reload-rules && sudo udevadm trigger
 
 ---
 
-## 📖 Spesifikasi Protokol USB HID
+##  Spesifikasi Protokol USB HID
 
 Dokumentasi teknis lengkap mengenai hasil reverse engineering protokol komunikasi USB HID (struktur packet 64-byte, opcode `0x01` Info, `0x12` Keymap, `0x76` Frame, `0x99` RGB Chunk, `0xFE` Light Mode, `0xAB` Commit, dan checksum layout) dapat dibaca di:
 👉 **[PROTOCOL.md](PROTOCOL.md)**
 
 ---
 
-## ⚖️ Penafian (Disclaimer)
+##  Penafian (Disclaimer)
 
 Proyek ini adalah hasil reverse engineering independen oleh komunitas open source untuk mendukung sistem operasi Linux dan tidak berafiliasi secara resmi dengan Vortex Gaming / VortexSeries maupun China Resource Semico Co., Ltd. Seluruh merk dagang, logo, dan nama produk adalah hak milik dari pemilik resminya masing-masing.
 
 ---
 
-<div align="center">
 
-Dibuat dengan ❤️ untuk komunitas Linux & Keyboard Enthusiast Indonesia.
 
-</div>
