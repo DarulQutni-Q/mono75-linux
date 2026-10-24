@@ -59,37 +59,41 @@ mkdir -p "$INSTALL_DIR" "$DATA_DIR/app" "$DESKTOP_DIR" "$ICON_DIR"
 TMP=$(mktemp -d)
 trap 'rm -rf "$TMP"' EXIT
 
-# --- 4. Install Official Vendor App Package ---
-echo "==> Setting up official vendor application package..."
+# Paket aplikasi vendor. Kalau sudah ada, pakai yang sudah ada.
+# Kalau unduhan gagal, installer berhenti dengan error, bukan mengklaim sukses.
 if [ -f "$DATA_DIR/app/DeviceDriver.exe" ]; then
-    echo "    Using existing application package at $DATA_DIR/app"
+    echo "Paket aplikasi sudah ada di $DATA_DIR/app, dipakai ulang."
 elif [ -f "./mono75_work/wine_prefix/drive_c/mono75app/DeviceDriver.exe" ]; then
     cp -r "./mono75_work/wine_prefix/drive_c/mono75app/." "$DATA_DIR/app/"
-    echo "    Copied application from local build directory."
 elif [ -f "./mono75-app.tar.zst" ]; then
     tar -xf "./mono75-app.tar.zst" -C "$DATA_DIR/app"
-    echo "    Extracted local mono75-app.tar.zst to $DATA_DIR/app"
 elif [ -f "./mono75-app.tar.gz" ]; then
     tar -xzf "./mono75-app.tar.gz" -C "$DATA_DIR/app"
-    echo "    Extracted local mono75-app.tar.gz to $DATA_DIR/app"
+elif command -v zstd >/dev/null 2>&1 && $DL "https://github.com/$REPO/releases/download/v1.0.0/mono75-app.tar.zst" -o "$TMP/mono75-app.tar.zst" 2>/dev/null; then
+    tar -xf "$TMP/mono75-app.tar.zst" -C "$DATA_DIR/app"
+elif $DL "https://github.com/$REPO/releases/download/v1.0.0/mono75-app.tar.gz" -o "$TMP/mono75-app.tar.gz" 2>/dev/null; then
+    tar -xzf "$TMP/mono75-app.tar.gz" -C "$DATA_DIR/app"
 else
-    echo "    Fetching application package from latest GitHub release..."
-    if command -v zstd >/dev/null 2>&1 && $DL "https://github.com/$REPO/releases/download/v1.0.0/mono75-app.tar.zst" -o "$TMP/mono75-app.tar.zst" 2>/dev/null; then
-        tar -xf "$TMP/mono75-app.tar.zst" -C "$DATA_DIR/app"
-        echo "    Extracted mono75-app.tar.zst successfully."
-    elif $DL "https://github.com/$REPO/releases/download/v1.0.0/mono75-app.tar.gz" -o "$TMP/mono75-app.tar.gz" 2>/dev/null; then
-        tar -xzf "$TMP/mono75-app.tar.gz" -C "$DATA_DIR/app"
-        echo "    Extracted mono75-app.tar.gz successfully."
-    else
-        echo "    [Notice] Release asset not yet downloaded. App directory ready at $DATA_DIR/app"
-    fi
+    echo "Error: paket aplikasi vendor tidak bisa diunduh dari rilis v1.0.0 dan tidak ditemukan secara lokal." >&2
+    echo "Periksa koneksi dan ketersediaan aset rilis, lalu jalankan installer lagi." >&2
+    exit 1
 fi
 
-# Link Wine app directory
+# Tarball rilis mengekstrak ke app/mono75app/, bukan langsung ke app/.
+# Normalisasi ke app/ supaya launcher dan path Wine cocok. Tanpa ini,
+# installer lama gagal diam-diam: file ada, tapi di subfolder yang salah.
+if [ -f "$DATA_DIR/app/mono75app/DeviceDriver.exe" ] && [ ! -f "$DATA_DIR/app/DeviceDriver.exe" ]; then
+    cp -r "$DATA_DIR/app/mono75app/." "$DATA_DIR/app/"
+    rm -rf "$DATA_DIR/app/mono75app"
+fi
+
+if [ ! -f "$DATA_DIR/app/DeviceDriver.exe" ]; then
+    echo "Error: DeviceDriver.exe tidak ditemukan di $DATA_DIR/app setelah instalasi paket." >&2
+    exit 1
+fi
+
 mkdir -p "$WINE_DIR/drive_c"
 ln -sfn "$DATA_DIR/app" "$WINE_DIR/drive_c/mono75app"
-
-# Record version
 echo "1.0.0" > "$DATA_DIR/version"
 
 # --- 5. Install Python CLI Tool ---
