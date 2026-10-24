@@ -383,140 +383,23 @@ The onboard MCU firmware implements a hardware-level dual mode:
 
 ---
 
-## 7. Linux Driver (`mono75_linux.py`) & Udev Setup
+## 7. Akses perangkat di Linux (udev)
 
-### 7.1 Linux Permissions Issue on `/dev/hidraw1`
-By default, standard Linux distributions (systemd/udev) grant read/write access to keyboard input nodes (`/dev/input/event*`), but restrict raw HID character devices (`/dev/hidraw*`) to `root:root` with permissions `0600` (`crw-------`).
+Bagian ini dulu berisi panduan CLI Python. CLI itu sudah dihapus dari
+repo ini, jadi panduannya juga dihapus. Yang tersisa di sini hanya
+penjelasan akses perangkat, karena itu masih relevan untuk GUI vendor
+yang mengakses keyboard lewat HID.
 
-Hardware operations (`info`, `light`, `per-key`, `keymap --remap`, `raw`) require communicating directly with `/dev/hidraw1`. When running these commands as an unprivileged user without the udev rule:
-```
-Error: Permission denied on /dev/hidraw1.
-  Install the udev rule or run with sudo.
-```
-Offline discovery commands (`list-modes` and `keymap --list`) execute directly from local layout definitions without touching `/dev/hidraw1` and run unprivileged without `sudo`.
-
-
-### 7.2 Udev Rules Configuration (`99-mono75.rules`)
-To grant local users unprivileged access to the Mono 75 configuration interface, use `99-mono75.rules`:
-
-```udev
-# VortexSeries Mono 75 (China Resource Semico Co., Ltd)
-# USB VID: 0x1A2C, PID: 0x6380
-# Allow non-root users in the 'users' group access to the keyboard's hidraw nodes
-ATTRS{idVendor}=="1a2c", ATTRS{idProduct}=="6380", MODE="0666", GROUP="users", TAG+="uaccess"
-KERNEL=="hidraw*", ATTRS{idVendor}=="1a2c", ATTRS{idProduct}=="6380", MODE="0666", GROUP="users", TAG+="uaccess"
-```
-
-### 7.3 Installation Steps
-Execute the following commands with root privileges:
+Secara default, node hidraw biasanya hanya bisa dibaca dan ditulis
+root. Supaya user biasa bisa memakai keyboard tanpa sudo, pasang
+aturan di `99-mono75.rules`:
 
 ```bash
-# 1. Copy the udev rule into the system directory
 sudo cp 99-mono75.rules /etc/udev/rules.d/99-mono75.rules
-
-# 2. Reload the udev rule engine
 sudo udevadm control --reload-rules
-
-# 3. Trigger udev events for existing HID devices
 sudo udevadm trigger --subsystem-match=hidraw
-
-# 4. Verify that /dev/hidraw1 permissions changed to 0666 (crw-rw-rw-)
-ls -la /dev/hidraw1
 ```
 
-Once installed, unplugging and re-plugging the keyboard (or running `udevadm trigger`) immediately makes `/dev/hidraw1` accessible to user session processes without requiring `sudo`.
-
----
-
-### 7.4 CLI Usage Guide for `mono75_linux.py`
-
-#### 1. Query Device Information
-```bash
-python3 mono75_linux.py info
-```
-*Output:*
-```
-=== Mono 75 Device Info ===
-  HID path       : /dev/hidraw1
-  VID / PID      : 0x1a2c / 0x6380
-  Firmware ver   : 1.00
-  Raw FW bytes   : 312e30300000
-  Full response  : 0701312e30300000...
-```
-
-#### 2. List Available Lighting Modes
-```bash
-python3 mono75_linux.py list-modes
-```
-*Output:*
-```
-Available lighting modes:
-   1  Static
-   2  Off
-   3  Breathing
-   4  Wave
-   5  Reactive
-   6  Ripple
-   7  Color Cycle
-   8  Rain
-   9  Random
-  10  Star
-  11  Fire
-  12  Snake
-  13  Brick
-  14  Custom Layer
-  15  Color Wheel
-  16  Neon
-  17  Aurora
-  18  Raindrop
-  19  Explosion
-  20  Heartbeat
-  21  Custom Per-Key
-```
-
-#### 3. Change Lighting Animation Preset
-```bash
-# Set mode 4 (Wave), speed 3, maximum brightness
-python3 mono75_linux.py light --mode 4 --speed 3 --brightness 4
-
-# Set mode 1 (Static) with a custom cyan hex color
-python3 mono75_linux.py light --mode 1 --brightness 4 --color 00ffd5
-
-# Set mode 3 (Breathing) with amber tint
-python3 mono75_linux.py light --mode 3 --speed 2 --color ff9900
-```
-
-#### 4. Custom Per-Key RGB Lighting
-```bash
-# Set all keys to magenta
-python3 mono75_linux.py per-key --color ff007f
-
-# Load from a CSV file (format: KEY_NAME,RRGGBB)
-cat << 'EOF' > /tmp/wasd_custom.csv
-W,ff0000
-A,ff0000
-S,ff0000
-D,ff0000
-Esc,00ffff
-Space,00ff00
-EOF
-python3 mono75_linux.py per-key --csv /tmp/wasd_custom.csv
-```
-
-#### 5. Key Remapping
-```bash
-# List all recognized physical keys and their default HID usage codes
-python3 mono75_linux.py keymap --list
-
-# Remap CapsLock (0x39) to Left Control (0xE0) on Base Layer (Layer 0)
-python3 mono75_linux.py keymap --layer 0 --remap Caps 0xE0
-
-# Remap Del key to Home (0x4A)
-python3 mono75_linux.py keymap --layer 0 --remap Del 0x4A
-```
-
-#### 6. Low-Level Raw Packet Injection (Debug)
-```bash
-# Send 64-byte raw packet (128 hex chars) and read response:
-python3 mono75_linux.py raw 07010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 --recv
-```
+Setelah aturan dipasang, cabut dan colok lagi keyboardnya, atau jalankan
+trigger di atas. Aturan itu memberi akses ke node hidraw dan usb untuk
+VID 1a2c dan PID 6380.
