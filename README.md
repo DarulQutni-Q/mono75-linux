@@ -54,23 +54,6 @@ mono75 list-modes
 
 ---
 
-##  Perbandingan Fitur
-
-| Fitur | Aplikasi Resmi Windows | Native Python CLI (`mono75 <cmd>`) | Runner Terintegrasi (`mono75`) |
-|---|---|---|---|
-| **Kebutuhan Wine** | Wajib (di Linux) | **0% Wine (Murni Native Linux)** | Opsional (hanya jika membuka GUI) |
-| **Antarmuka Grafis (GUI)** | Resmi Vendor (XYUI/MFC) | N/A (Headless) | **100% Resmi Vendor** |
-| **Status & Info Perangkat** | Visual | Terminal JSON/Text | **Didukung Penuh** |
-| **21 Mode Efek RGB** | Ya (Preset 1–21) | **Ya (Preset 1–21 + speed/brightness/color)** | **Didukung Penuh** |
-| **Per-Key Custom RGB** | Visual Palette Grid | **Hex Bulk, Single Key, atau CSV Table** | **Didukung Penuh** |
-| **Key Remapping & Layers** | Visual Layout Map | **Layer 0 (Base) & Layer 1 (Fn)** | **Didukung Penuh** |
-| **Knob Rotary Encoder** | Visual Setup | Standard Consumer HID | **Didukung Penuh** |
-| **Visual Macro Sequencer** | Ya | Via GUI Resmi | **Didukung Penuh** |
-| **Akses Non-Root (udev)** | N/A | **0666 uaccess (Tanpa sudo)** | **0666 uaccess (Tanpa sudo)** |
-| **Low-Level Raw Packet Debug**| Tidak Ada | **Ya (`mono75 raw <hex> --recv`)** | **Didukung Penuh** |
-
----
-
 ##  Kompatibilitas Hardware
 
 
