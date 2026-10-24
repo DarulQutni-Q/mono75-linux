@@ -1,11 +1,15 @@
 #!/usr/bin/env bash
-# ==============================================================================
-# VortexSeries MONO 75 Keyboard Driver & Configurator - Linux Installer
-# Reverse-Engineered from Official OEM Windows Application (DeviceDriver.exe v1.0.3.5)
+# Installer aplikasi vendor MONO 75 untuk Linux.
+# Yang dipasang: paket aplikasi vendor, launcher bin/mono75, satu ikon,
+# satu desktop entry, dan aturan udev dari 99-mono75.rules.
+# Repo ini tidak lagi berisi CLI, jadi installer tidak memasang mono75-cli
+# dan tidak memasang mono75_linux.py. Kalau file lama itu masih ada dari
+# instalasi sebelumnya, installer menghapusnya.
 #
-# Usage:
+# Penggunaan:
 #   curl -fsSL https://raw.githubusercontent.com/DarulQutni-Q/mono75-linux/main/install.sh | bash
-# ==============================================================================
+#   atau dari hasil clone:
+#   ./install.sh
 set -euo pipefail
 
 REPO="DarulQutni-Q/mono75-linux"
@@ -15,46 +19,24 @@ DESKTOP_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/applications"
 ICON_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/icons"
 WINE_DIR="$DATA_DIR/wineprefix"
 
-echo "======================================================================"
-echo "  VortexSeries MONO 75 Keyboard Linux Driver & Utility Installer"
-echo "  Reverse-Engineered from Official Vendor App (DeviceDriver.exe v1.0.3.5)"
-echo "======================================================================"
-
-# --- 1. Downloader Check ---
 if command -v curl >/dev/null 2>&1; then
     DL="curl -fsSL"
 elif command -v wget >/dev/null 2>&1; then
     DL="wget -qO-"
 else
-    echo "Error: curl or wget is required." >&2
+    echo "Error: curl atau wget dibutuhkan." >&2
     exit 1
-fi
-
-# --- 2. Environment & Dependencies Check ---
-echo "==> Checking dependencies..."
-if ! command -v python3 >/dev/null 2>&1; then
-    echo "    [!] Error: python3 is required for native CLI control." >&2
-    exit 1
-else
-    echo "    Found Python runtime: $(python3 --version 2>&1)"
 fi
 
 if command -v wine >/dev/null 2>&1; then
-    echo "    Found Wine: $(wine --version 2>&1) (Official GUI available)"
+    echo "Wine ditemukan: $(wine --version 2>&1)"
 else
-    echo "    [Notice] 'wine' is not installed."
-    echo "    Native Python CLI works 100% out-of-the-box without Wine."
-    echo "    To also use the official Windows GUI app on Linux, install Wine:"
-    if command -v pacman >/dev/null 2>&1; then
-        echo "      Arch / CachyOS : sudo pacman -S wine"
-    elif command -v apt-get >/dev/null 2>&1; then
-        echo "      Ubuntu / Debian: sudo apt install wine"
-    elif command -v dnf >/dev/null 2>&1; then
-        echo "      Fedora         : sudo dnf install wine"
-    fi
+    echo "Peringatan: wine tidak ditemukan. Launcher tetap dipasang, tapi GUI tidak akan jalan sampai Wine dipasang."
+    echo "  Arch / CachyOS: sudo pacman -S wine"
+    echo "  Ubuntu / Debian: sudo apt install wine"
+    echo "  Fedora: sudo dnf install wine"
 fi
 
-# --- 3. Directory Setup ---
 mkdir -p "$INSTALL_DIR" "$DATA_DIR/app" "$DESKTOP_DIR" "$ICON_DIR"
 TMP=$(mktemp -d)
 trap 'rm -rf "$TMP"' EXIT
@@ -109,11 +91,6 @@ chmod +x "$INSTALL_DIR/mono75"
 # Hapus sisa CLI lama, supaya tidak ada perintah setengah yang menyesatkan.
 rm -f "$INSTALL_DIR/mono75-cli" "$DATA_DIR/mono75_linux.py"
 
-
-# Hapus sisa CLI lama, supaya tidak ada perintah setengah yang menyesatkan.
-rm -f "$INSTALL_DIR/mono75-cli" "$DATA_DIR/mono75_linux.py"
-
-
 # Ikon. Satu file 512x512 saja, bukan satu gambar yang disalin ke banyak ukuran.
 echo "Memasang ikon ke $ICON_DIR/hicolor/512x512/apps/mono75.png"
 mkdir -p "$ICON_DIR/hicolor/512x512/apps"
@@ -123,7 +100,6 @@ else
     $DL "https://raw.githubusercontent.com/$REPO/main/assets/icon.png" -o "$ICON_DIR/hicolor/512x512/apps/mono75.png"
 fi
 rm -f "$ICON_DIR/mono75.png"
-
 
 # Desktop entry, dibuat installer supaya Exec selalu menunjuk launcher yang baru dipasang.
 echo "Memasang desktop entry ke $DESKTOP_DIR/mono75.desktop"
@@ -142,40 +118,27 @@ Keywords=vortex;vortexseries;mono75;keyboard;rgb;macro;hid;semico;
 EOF
 chmod 644 "$DESKTOP_DIR/mono75.desktop"
 
-
-# --- 9. Install Udev Rules ---
-echo "==> Configuring udev permissions (non-root access)..."
+# Aturan udev. Satu sumber: 99-mono75.rules di repo.
+echo "Memasang aturan udev ke /etc/udev/rules.d/99-mono75.rules"
 UDEV_RULE_FILE="/etc/udev/rules.d/99-mono75.rules"
-UDEV_CONTENT='# VortexSeries Mono 75 Mechanical Keyboard (China Resource Semico Co., Ltd)
-# USB VID: 0x1A2C, PID: 0x6380
-# Allow non-root users access to the keyboard hidraw and USB nodes without sudo
-SUBSYSTEM=="hidraw", ATTRS{idVendor}=="1a2c", ATTRS{idProduct}=="6380", MODE="0666", GROUP="users", TAG+="uaccess"
-SUBSYSTEM=="usb", ATTRS{idVendor}=="1a2c", ATTRS{idProduct}=="6380", MODE="0666", GROUP="users", TAG+="uaccess"
-ATTRS{idVendor}=="1a2c", ATTRS{idProduct}=="6380", MODE="0666", GROUP="users", TAG+="uaccess"
-KERNEL=="hidraw*", ATTRS{idVendor}=="1a2c", ATTRS{idProduct}=="6380", MODE="0666", GROUP="users", TAG+="uaccess"
-'
-
+if [ -f "./99-mono75.rules" ]; then
+    cp "./99-mono75.rules" "$TMP/99-mono75.rules"
+else
+    $DL "https://raw.githubusercontent.com/$REPO/main/99-mono75.rules" -o "$TMP/99-mono75.rules"
+fi
 if [ -w /etc/udev/rules.d ]; then
-    echo "$UDEV_CONTENT" > "$UDEV_RULE_FILE"
+    cp "$TMP/99-mono75.rules" "$UDEV_RULE_FILE"
     udevadm control --reload-rules 2>/dev/null || true
     udevadm trigger 2>/dev/null || true
-    echo "    udev rules installed directly to $UDEV_RULE_FILE"
+elif command -v sudo >/dev/null 2>&1; then
+    sudo cp "$TMP/99-mono75.rules" "$UDEV_RULE_FILE"
+    sudo udevadm control --reload-rules 2>/dev/null || true
+    sudo udevadm trigger 2>/dev/null || true
 else
-    echo "$UDEV_CONTENT" > "$TMP/99-mono75.rules"
-    if command -v sudo >/dev/null 2>&1; then
-        echo "    Installing udev rule via sudo..."
-        sudo cp "$TMP/99-mono75.rules" "$UDEV_RULE_FILE"
-        sudo udevadm control --reload-rules 2>/dev/null || true
-        sudo udevadm trigger 2>/dev/null || true
-        echo "    udev rules installed successfully."
-    else
-        echo "    [!] Warning: Could not write to /etc/udev/rules.d/ without sudo."
-        echo "    Please run manually: sudo cp $TMP/99-mono75.rules $UDEV_RULE_FILE"
-    fi
+    echo "Peringatan: tidak bisa menulis ke /etc/udev/rules.d/ tanpa sudo."
+    echo "Jalankan manual: sudo cp $TMP/99-mono75.rules $UDEV_RULE_FILE"
 fi
 
-# --- 10. Refresh Desktop Database & Icon Cache ---
-echo "==> Refreshing system caches..."
 if command -v update-desktop-database >/dev/null 2>&1; then
     update-desktop-database "$DESKTOP_DIR" 2>/dev/null || true
 fi
@@ -183,23 +146,17 @@ if command -v gtk-update-icon-cache >/dev/null 2>&1; then
     gtk-update-icon-cache -f -t "$ICON_DIR/hicolor" 2>/dev/null || true
 fi
 
-# --- 11. Summary & Finish ---
 echo ""
-echo "======================================================================"
-echo "  Installation Successful!"
-echo "======================================================================"
-echo "  Application : MONO 75 (VortexSeries MONO 75 Keyboard Manager)"
-echo "  Binary Path : $INSTALL_DIR/mono75"
-echo "  CLI Tool    : $INSTALL_DIR/mono75-cli"
-echo "  Desktop File: $DESKTOP_DIR/mono75.desktop"
-echo "  Hardware    : USB VID 0x1A2C / PID 0x6380"
-echo ""
-echo "  Launch options:"
-echo "    - From app launcher : search 'MONO 75'"
-echo "    - Terminal (GUI)    : mono75"
-echo "    - Terminal (CLI)    : mono75 info"
-echo "                          mono75 list-modes"
-echo "                          mono75 light --mode 4 --speed 3 --brightness 4"
-echo "                          mono75 per-key --color ff007f"
-echo "                          mono75 keymap --layer 0 --remap Caps 0xE0"
-echo "======================================================================"
+echo "Selesai."
+echo "  Launcher: $INSTALL_DIR/mono75"
+echo "  Aplikasi: $DATA_DIR/app"
+echo "  Desktop: $DESKTOP_DIR/mono75.desktop"
+case ":$PATH:" in
+    *":$INSTALL_DIR:"*)
+        echo "  Jalankan: mono75"
+        ;;
+    *)
+        echo "  Perhatian: $INSTALL_DIR tidak ada di PATH shell ini."
+        echo "  Sampai PATH diperbaiki, jalankan dengan path lengkap: $INSTALL_DIR/mono75"
+        ;;
+esac
