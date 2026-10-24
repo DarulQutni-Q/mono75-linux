@@ -403,3 +403,9 @@ sudo udevadm trigger --subsystem-match=hidraw
 Setelah aturan dipasang, cabut dan colok lagi keyboardnya, atau jalankan
 trigger di atas. Aturan itu memberi akses ke node hidraw dan usb untuk
 VID 1a2c dan PID 6380.
+
+Catatan kejujuran untuk dokumen ini: opcode, mode lampu, dan layout di
+bagian sebelumnya didokumentasikan dari hasil reverse engineering
+aplikasi vendor. Dokumen ini bukan klaim bahwa setiap opcode sudah
+diuji langsung dengan hardware di semua kondisi, dan tidak ada lagi
+alat CLI di repo ini untuk mengirim paket mentah.
